@@ -91,6 +91,9 @@ mx8ulp-flavorlist = \
 mx93-flavorlist = \
 	mx93evk \
 
+mx95-flavorlist = \
+	mx95evk \
+
 ifneq (,$(filter $(PLATFORM_FLAVOR),$(mx6ul-flavorlist)))
 $(call force,CFG_MX6,y)
 $(call force,CFG_MX6UL,y)
@@ -253,6 +256,16 @@ CFG_IMX_MU ?= y
 CFG_IMX_ELE ?= y
 CFG_IN_TREE_EARLY_TAS += trusted_keys/f04a0fe7-1f5d-4b9b-abf7-619b85b4ce8c
 CFG_IMX_ELE_TEST_PTA ?= n
+else ifneq (,$(filter $(PLATFORM_FLAVOR),$(mx95-flavorlist)))
+$(call force,CFG_MX95,y)
+$(call force,CFG_ARM64_core,y)
+CFG_IMX_LPUART ?= y
+CFG_DRAM_BASE ?= 0x80000000
+CFG_TEE_CORE_NB_CORE ?= 6
+$(call force,CFG_NXP_SNVS,n)
+$(call force,CFG_IMX_OCOTP,n)
+$(call force,CFG_TZC380,n)
+$(call force,CFG_NXP_CAAM,n)
 else
 $(error Unsupported PLATFORM_FLAVOR "$(PLATFORM_FLAVOR)")
 endif
@@ -463,6 +476,14 @@ CFG_DDR_SIZE ?= 0x80000000
 CFG_UART_BASE ?= UART1_BASE
 endif
 
+ifneq (,$(filter $(PLATFORM_FLAVOR),mx95evk))
+CFG_DDR_SIZE ?= 0x80000000
+CFG_UART_BASE ?= UART1_BASE
+CFG_NSEC_DDR_1_BASE ?= 0x100000000UL
+CFG_NSEC_DDR_1_SIZE ?= 0x380000000UL
+CFG_CORE_ARM64_PA_BITS ?= 40
+endif
+
 # i.MX6 Solo/SL/SoloX/DualLite/Dual/Quad specific config
 ifeq ($(filter y, $(CFG_MX6QP) $(CFG_MX6Q) $(CFG_MX6D) $(CFG_MX6DL) $(CFG_MX6S) \
 	$(CFG_MX6SL) $(CFG_MX6SLL) $(CFG_MX6SX)), y)
@@ -544,6 +565,10 @@ ifneq (,$(filter y, $(CFG_MX8MN) $(CFG_MX8MP) $(CFG_MX8DX) $(CFG_MX8DXL) $(CFG_M
 CFG_TZDRAM_START ?= ($(CFG_DRAM_BASE) + 0x16000000)
 else ifneq (,$(filter y, $(CFG_MX8ULP)))
 CFG_TZDRAM_START ?= ($(CFG_DRAM_BASE) + 0x26000000)
+else ifneq (,$(filter y, $(CFG_MX95)))
+CFG_TZDRAM_START ?= ($(CFG_DRAM_BASE) + 0x0C000000)
+# On i.MX95 we will have 32MB OP-TEE memory and 2MB Shared Memory after that.
+CFG_TZDRAM_SIZE ?= 0x02000000
 else ifneq (,$(filter y, $(CFG_MX8MM) $(CFG_MX8MQ) $(CFG_MX8QM) $(CFG_MX8QX)))
 CFG_TZDRAM_START ?= ($(CFG_DRAM_BASE) - 0x02000000 + $(CFG_DDR_SIZE))
 else
