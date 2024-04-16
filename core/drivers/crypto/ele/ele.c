@@ -402,7 +402,7 @@ err:
 }
 driver_init(imx_ele_global_init);
 
-#if defined(CFG_MX93)
+#if defined(CFG_MX93) || defined(CFG_MX91)
 /*
  * Key buffer pointer must be align on a cache line
  * as cache invalidate is done after key derivation.
@@ -647,4 +647,4 @@ TEE_Result imx_ele_derive_key(const uint8_t *ctx __unused,
 {
 	return TEE_ERROR_NOT_IMPLEMENTED;
 }
-#endif /* CFG_MX93 */
+#endif /* CFG_MX93 || CFG_MX91 */
