@@ -161,6 +161,45 @@ static TEE_Result system_map_zi(struct user_mode_ctx *uctx,
 	return res;
 }
 
+static TEE_Result system_mprotect(struct user_mode_ctx *uctx, uint32_t param_types,
+			       TEE_Param params[TEE_NUM_PARAMS])
+{
+	uint32_t exp_pt = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
+					  TEE_PARAM_TYPE_VALUE_INPUT,
+					  TEE_PARAM_TYPE_NONE,
+					  TEE_PARAM_TYPE_NONE);
+	TEE_Result res = TEE_SUCCESS;
+	uint32_t vm_flags = 0;
+	vaddr_t end_va = 0;
+	vaddr_t va = 0;
+	size_t sz = 0;
+	uint32_t prot = 0;
+
+	if (exp_pt != param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	va = reg_pair_to_64(params[1].value.a, params[1].value.b);
+	sz = ROUNDUP(params[0].value.a, SMALL_PAGE_SIZE);
+	prot = params[0].value.b;
+
+	/*
+	 * The vm_get_flags() and vm_unmap() are supposed to detect or
+	 * handle overflow directly or indirectly. However, this function
+	 * an API function so an extra guard here is in order. If nothing
+	 * else to make it easier to review the code.
+	 */
+	if (ADD_OVERFLOW(va, sz, &end_va))
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	res = vm_get_flags(uctx, va, sz, &vm_flags);
+	if (res)
+		return res;
+	if (vm_flags & VM_FLAG_PERMANENT)
+		return TEE_ERROR_ACCESS_DENIED;
+
+	return vm_set_prot(uctx, va, sz, prot);
+}
+
 static TEE_Result system_unmap(struct user_mode_ctx *uctx, uint32_t param_types,
 			       TEE_Param params[TEE_NUM_PARAMS])
 {
