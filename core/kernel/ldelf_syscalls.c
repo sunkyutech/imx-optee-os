@@ -310,6 +310,16 @@ TEE_Result ldelf_syscall_map_bin(vaddr_t *va, size_t num_bytes,
 		return TEE_ERROR_BAD_PARAMETERS;
 	num_pages = num_rounded_bytes / SMALL_PAGE_SIZE;
 
+	// AoT compilation of WaTZ requires to modify a memory block of size 0x1000.
+	// At the time of writing, we could not drill down to what corresponds this area of memory that
+	// is written by WAMR (Wasm runtime). As such, a hack is added below to enable write memory protection
+	// on area of memory of that size.
+	// TODO: Fix that hack.
+	if (num_rounded_bytes == 4096) {
+		prot |= TEE_MATTR_UW | TEE_MATTR_PW;
+		DMSG("WaTZ trickery: added the writable protection flag to an allocated memory page of size 0x1000.");
+	}
+
 	if (!file_trylock(binh->f)) {
 		/*
 		 * Before we can block on the file lock we must make all
