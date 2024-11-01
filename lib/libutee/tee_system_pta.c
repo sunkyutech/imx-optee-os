@@ -59,6 +59,26 @@ void *tee_map_zi(size_t len, uint32_t flags)
 					       params[1].value.b);
 }
 
+TEE_Result tee_mprotect(void *buf, size_t len, uint32_t prot)
+{
+	TEE_Result res = TEE_SUCCESS;
+	uint32_t param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
+					       TEE_PARAM_TYPE_VALUE_INPUT,
+					       TEE_PARAM_TYPE_NONE,
+					       TEE_PARAM_TYPE_NONE);
+	TEE_Param params[TEE_NUM_PARAMS] = { };
+
+	params[0].value.a = len;
+	params[0].value.b = prot;
+	reg_pair_from_64((vaddr_t)buf, &params[1].value.a, &params[1].value.b);
+
+	res = invoke_system_pta(PTA_SYSTEM_MPROTECT, param_types, params);
+	if (res)
+		EMSG("Invoke PTA_SYSTEM_MPROTECT: buf %p, len %#zx, prot %u", buf, len, prot);
+
+	return res;
+}
+
 TEE_Result tee_unmap(void *buf, size_t len)
 {
 	TEE_Result res = TEE_SUCCESS;
