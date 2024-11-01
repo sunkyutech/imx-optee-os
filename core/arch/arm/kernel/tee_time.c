@@ -61,6 +61,7 @@ TEE_Result tee_time_get_ree_time(TEE_Time *time)
 	if (res == TEE_SUCCESS) {
 		time->seconds = params.u.value.a;
 		time->millis = params.u.value.b / 1000000;
+		time->nanos = params.u.value.b;
 	}
 
 	return res;

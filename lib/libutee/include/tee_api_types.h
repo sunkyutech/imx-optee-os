@@ -160,6 +160,7 @@ typedef struct {
 typedef struct {
 	uint32_t seconds;
 	uint32_t millis;
+	uint64_t nanos;
 } TEE_Time;
 
 /* TEE Arithmetical APIs */
