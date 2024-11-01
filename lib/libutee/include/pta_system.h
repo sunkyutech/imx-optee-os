@@ -70,6 +70,13 @@
 #define PTA_SYSTEM_MAP_ZI		2
 
 /*
+ * UNOFFICIAL API EXTENSION by WaTZ
+ *
+ * Change the protection of mapped memory pages
+ */
+#define PTA_SYSTEM_MPROTECT		20
+
+/*
  * Unmap memory
  *
  * [in]	    value[0].a: Number of bytes
