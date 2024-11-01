@@ -14,6 +14,7 @@ srcs-y += crypt_hash_descriptor.c
 srcs-y += crypt_hash_is_valid.c
 srcs-y += crypt_prng_descriptor.c
 srcs-y += crypt_prng_is_valid.c
+srcs-y += crypt_register_all_prngs.c
 srcs-y += crypt_register_cipher.c
 srcs-y += crypt_register_hash.c
 srcs-y += crypt_register_prng.c

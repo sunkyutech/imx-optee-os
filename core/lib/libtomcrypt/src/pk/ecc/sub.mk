@@ -1,6 +1,8 @@
 srcs-y += ecc.c
+srcs-y += ecc_export.c
 srcs-y += ecc_find_curve.c
 srcs-y += ecc_free.c
+srcs-y += ecc_get_key.c
 srcs-y += ecc_get_oid_str.c
 srcs-y += ecc_make_key.c
 srcs-y += ecc_set_curve.c
@@ -9,6 +11,7 @@ srcs-y += ecc_shared_secret.c
 srcs-y += ecc_sign_hash.c
 srcs-y += ecc_ssh_ecdsa_encode_name.c
 srcs-y += ecc_verify_hash.c
+srcs-y += ltc_ecc_export_point.c
 srcs-y += ltc_ecc_is_point.c
 srcs-y += ltc_ecc_is_point_at_infinity.c
 srcs-y += ltc_ecc_map.c

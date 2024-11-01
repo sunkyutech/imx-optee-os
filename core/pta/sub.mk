@@ -12,5 +12,8 @@ srcs-$(CFG_NXP_SE05X) += scp03.c
 srcs-$(CFG_SCMI_PTA) += scmi.c
 srcs-$(CFG_HWRNG_PTA) += hwrng.c
 
+# Add VEDLIoT pseudo TAs
+srcs-y += attesting_service.c
+
 subdirs-y += bcm
 subdirs-y += imx
