@@ -649,6 +649,7 @@
 #define LTC_MUTEX_INIT(x)     mutex_init(x);
 #define LTC_MUTEX_LOCK(x)     mutex_lock(x);
 #define LTC_MUTEX_UNLOCK(x)   mutex_unlock(x);
+#define LTC_MUTEX_DESTROY(x)  mutex_destroy(x);
 
 #elif defined(LTC_PTHREAD)
 
