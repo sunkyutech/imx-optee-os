@@ -140,3 +140,4 @@ endif
 
 srcs-y += tomcrypt.c
 
+srcs-y += vedliot_crypto.c
