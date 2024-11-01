@@ -11,7 +11,8 @@
 #include <stddef.h>
 #include <trace_levels.h>
 
-#define MAX_PRINT_SIZE      256
+/* VEDLIoT: Augmented to display the key materials. */
+#define MAX_PRINT_SIZE      512
 #define MAX_FUNC_PRINT_SIZE 32
 
 #ifndef TRACE_LEVEL
