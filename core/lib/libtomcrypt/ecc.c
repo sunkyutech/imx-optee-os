@@ -12,6 +12,8 @@
 #include <utee_defines.h>
 
 #include "acipher_helpers.h"
+#include "vedliot_crypto_private.h"
+#include "vedliot_utils.h"
 
 static void _ltc_ecc_free_public_key(struct ecc_public_key *s)
 {
@@ -485,4 +487,95 @@ err:
 	crypto_bignum_free(s->x);
 
 	return TEE_ERROR_OUT_OF_MEMORY;
+}
+
+
+/*
+ * VEDLIoT required crypto functions.
+ */
+
+TEE_Result _ltc_ecc_generate_keypair_with_prng(struct ecc_keypair *key,
+					    size_t key_size, prng_state *prng)
+{
+	DMSG("has been called");
+	TEE_Result res;
+	ecc_key ltc_tmp_key;
+	int ltc_res;
+	size_t key_size_bytes = 0;
+	size_t key_size_bits = 0;
+
+	res = ecc_get_curve_info(key->curve, 0, &key_size_bytes, &key_size_bits,
+				 NULL);
+	if (res != TEE_SUCCESS)
+		return res;
+	DMSG("ecc_get_curve_info OK");
+
+	if (key_size != key_size_bits)
+	{
+		EMSG("key_size != key_size_bits");
+		return TEE_ERROR_BAD_PARAMETERS;
+	}
+
+	/* Generate the ECC key */
+	ltc_res = ecc_make_key(prng, find_prng("fortuna"),
+			       key_size_bytes, &ltc_tmp_key);
+	if (ltc_res != CRYPT_OK)
+	{
+		EMSG("ecc_make_key; fortuna_prng index: %d", find_prng("fortuna"));
+		return TEE_ERROR_BAD_PARAMETERS;
+	}
+	DMSG("ecc_make_key OK");
+
+	/* check the size of the keys */
+	if (((size_t)mp_count_bits(ltc_tmp_key.pubkey.x) > key_size_bits) ||
+	    ((size_t)mp_count_bits(ltc_tmp_key.pubkey.y) > key_size_bits) ||
+	    ((size_t)mp_count_bits(ltc_tmp_key.k) > key_size_bits)) {
+		EMSG("check the size of the keys");
+		res = TEE_ERROR_BAD_PARAMETERS;
+		goto exit;
+	}
+
+	/* check LTC is returning z==1 */
+	if (mp_count_bits(ltc_tmp_key.pubkey.z) != 1) {
+		EMSG("check LTC is returning z==1");
+		res = TEE_ERROR_BAD_PARAMETERS;
+		goto exit;
+	}
+
+	/* Copy the key */
+	ltc_mp.copy(ltc_tmp_key.k, key->d);
+	ltc_mp.copy(ltc_tmp_key.pubkey.x, key->x);
+	ltc_mp.copy(ltc_tmp_key.pubkey.y, key->y);
+
+#if TRACE_LEVEL >= TRACE_DEBUG
+	/* Display the keys */
+	uint32_t exported_keys_size = 200;
+	uint8_t *exported_keys = malloc(exported_keys_size);
+	memset(exported_keys, 0, exported_keys_size);
+	unsigned long exported_keys_len = exported_keys_size;
+
+	ltc_res = ecc_export(exported_keys, &exported_keys_len, PK_PRIVATE, &ltc_tmp_key);
+	if (ltc_res != CRYPT_OK)
+	{
+		IMSG("The ECC key cannot be exported. Error: %x", ltc_res);
+		res = TEE_ERROR_GENERIC;
+		goto exit_dump;
+	}
+	DMSG("ecc_export OK");
+
+	DMSG("Dumping the ECDSA keypair:");
+	utils_print_byte_array(exported_keys, exported_keys_len);
+#endif
+
+	res = TEE_SUCCESS;
+
+#if TRACE_LEVEL >= TRACE_DEBUG
+exit_dump:
+	free(exported_keys);
+#endif
+
+exit:
+	ecc_free(&ltc_tmp_key);		/* Free the temporary key */
+	DMSG("ecc_free OK");
+	return res;
 }
