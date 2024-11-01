@@ -45,6 +45,12 @@ TEE_Result TEE_CacheInvalidate(char *buf, size_t len);
 void *tee_map_zi(size_t len, uint32_t flags);
 
 /*
+ * UNOFFICIAL API EXTENSION by WaTZ
+ * tee_mprotect() - Change the protection of mapped memory pages
+ */
+TEE_Result tee_mprotect(void *buf, size_t len, uint32_t prot);
+
+/*
  * tee_unmap() - Unmap previously mapped memory
  * @buf:	Buffer
  * @len:	Number of bytes
