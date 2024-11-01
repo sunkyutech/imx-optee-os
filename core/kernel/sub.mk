@@ -37,3 +37,5 @@ endif
 
 srcs-$(CFG_EMBEDDED_TS) += embedded_ts.c
 srcs-y += pseudo_ta.c
+
+srcs-y += vedliot_utils.c
