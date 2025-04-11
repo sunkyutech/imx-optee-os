@@ -379,6 +379,8 @@ static TEE_Result invoke_command(void *sess_ctx __unused, uint32_t cmd_id,
 		return system_derive_ta_unique_key(uctx, param_types, params);
 	case PTA_SYSTEM_MAP_ZI:
 		return system_map_zi(uctx, param_types, params);
+	case PTA_SYSTEM_MPROTECT:
+		return system_mprotect(uctx, param_types, params);
 	case PTA_SYSTEM_UNMAP:
 		return system_unmap(uctx, param_types, params);
 	case PTA_SYSTEM_DLOPEN:
